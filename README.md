@@ -1,0 +1,1 @@
+Simple unit test that shows that JPA picks a connection from the connection pool as soon as a transaction is started.
