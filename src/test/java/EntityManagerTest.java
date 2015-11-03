@@ -1,5 +1,7 @@
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.management.ManagementFactory;
 
@@ -128,6 +130,21 @@ public class EntityManagerTest {
     em.close();
     // Then
     Thread.sleep(2 * 1000L);
+    assertThat(getNumBusyConnection(), is(0));
+  }
+
+  @Test
+  public void closeEmDuringTransaction_doesntImmediatelyReleaseConnection() throws Exception {
+    // Given
+    EntityManager em = emf.createEntityManager();
+    em.getTransaction().begin();
+    // When
+    em.close();
+    // Then
+    assertFalse(em.isOpen());
+    assertTrue(em.getTransaction().isActive());
+    assertThat(getNumBusyConnection(), is(1));
+    em.getTransaction().commit();
     assertThat(getNumBusyConnection(), is(0));
   }
 
